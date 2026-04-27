@@ -84,7 +84,7 @@ textarea:focus {
 
 .small {
   font-size:12.5px;
-  opacity:.76;
+  opacity:.78;
   margin-top:14px;
   line-height:1.6;
 }
@@ -112,7 +112,6 @@ textarea:focus {
 
 <body>
 
-<!-- HOME -->
 <div id="home" class="screen active safe">
   <div class="badge">Real-Time Governance</div>
   <h1>AI Guardian™</h1>
@@ -124,20 +123,18 @@ textarea:focus {
 
   <div class="small">
     <strong>How to Experience This Demo</strong><br><br>
-    Enter a message and select Analyze.<br>
-    Normal text → Approved<br>
-    Sensitive or risky input → Warning or Approval Required<br><br>
-
-    This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.<br>
-    Production systems operate within a secured architecture with advanced models, pattern analysis, and safeguards not exposed in this demo interface.
+    Enter a message and select <strong>Analyze</strong>.<br><br>
+    <strong>Normal input</strong> → Approved / Green<br>
+    <strong>Sensitive or risky input</strong> → Warning / Yellow or Approval Required / Red<br><br>
+    This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.
+    It is not the AI Guardian™ production system, which operates within a secured architecture with advanced models, pattern analysis, and safeguards not used in this demo interface.
   </div>
 </div>
 
-<!-- RISK -->
 <div id="risk" class="screen warning">
   <div class="badge">Review Required</div>
   <h2>⚠️ Caution</h2>
-  <p id="riskReason" class="reason">Potential risk detected.</p>
+  <p id="riskReason" class="reason">Potential sensitive or risky input detected.</p>
 
   <button class="button green" onclick="show('approved')">Allow & Proceed</button>
   <button class="button yellow" onclick="show('modify')">Modify & Resubmit</button>
@@ -146,13 +143,10 @@ textarea:focus {
   <div class="divider"></div>
 
   <div class="small">
-    You remain in control. Every action requires your decision.<br><br>
-    This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.<br>
-    Production systems operate within a secured architecture with advanced models, pattern analysis, and safeguards not exposed in this demo interface.
+    You remain in control. Every action requires your decision.
   </div>
 </div>
 
-<!-- MODIFY -->
 <div id="modify" class="screen warning">
   <div class="badge">User Review</div>
   <h2>Modify Input</h2>
@@ -163,7 +157,6 @@ textarea:focus {
   <button class="button neutral" onclick="show('home')">Cancel</button>
 </div>
 
-<!-- APPROVED -->
 <div id="approved" class="screen safe">
   <div class="badge">Protected Result</div>
   <h2>✅ Approved</h2>
@@ -172,29 +165,21 @@ textarea:focus {
   <div class="small">
     Nothing was saved.<br>
     Nothing was shared.<br>
-    Nothing was reported.<br><br>
-
-    This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.<br>
-    Production systems operate within a secured architecture with advanced models, pattern analysis, and safeguards not exposed in this demo interface.
+    Nothing was reported.
   </div>
 
   <button class="button neutral" onclick="show('home')">Back</button>
 </div>
 
-<!-- HOLD -->
 <div id="hold" class="screen danger">
   <div class="badge">Action Held</div>
   <h2>⛔ Hold for Approval</h2>
-  <p id="holdReason" class="reason">High-risk content detected.</p>
+  <p id="holdReason" class="reason">High-risk request detected.</p>
 
   <div class="small">
     No action has been taken.<br>
     This content requires review before proceeding.<br><br>
-
-    You remain in control. Every action requires your decision.<br><br>
-
-    This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.<br>
-    Production systems operate within a secured architecture with advanced models, pattern analysis, and safeguards not exposed in this demo interface.
+    You remain in control. Every action requires your decision.
   </div>
 
   <button class="button red" onclick="show('risk')">Review Options</button>
@@ -214,16 +199,22 @@ function analyze(){
 
   const highRisk=[
     "ssn","social security","social security number","medicare","medicare number","medicare card",
-    "passport","driver license","id card","bank account","routing number",
-    "credit card","cvv","pin number","password","otp","verification code",
-    "send money","wire transfer","gift card","click this link","verify your account",
-    "how to hack","steal money","weapon","attack","kill"
+    "medicaid","passport","passport number","driver license","driver's license","license number",
+    "state id","id card","tax id","ein number","bank account","account number","routing number",
+    "credit card","debit card","card number","cvv","security code","pin number","atm pin",
+    "wire transfer","zelle","cash app","venmo","password","passcode","login code",
+    "verification code","2fa","one time code","otp","authentication code","reset your password",
+    "confirm your password","verify your account","confirm your identity","click this link",
+    "your account will be closed","account suspended","gift card","send money","pay immediately",
+    "how to hack","steal money","bypass security","illegal access",
+    "weapon","attack","kill","shoot","terrorist","terrorism","join extremist","radicalize"
   ];
 
   const mediumRisk=[
-    "email","phone number","address","full name","date of birth",
-    "insurance","policy number","username","login","personal information",
-    "urgent","act now","final notice"
+    "email","phone number","address","home address","full name","date of birth","birthday",
+    "insurance card","insurance number","policy number","member id","group number",
+    "medical record","username","login","personal information","urgent","act now",
+    "final notice","limited time","don't trust anyone","they are lying","hidden truth","wake up"
   ];
 
   const patternSSN = /\b\d{3}-\d{2}-\d{4}\b/;
