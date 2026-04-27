@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Guardian</title>
+
 <style>
 body {
   margin:0;
@@ -20,81 +21,98 @@ body {
   width:360px;
   height:720px;
   background:#111827;
-  border-radius:20px;
-  padding:20px;
+  border-radius:22px;
+  padding:22px;
   display:none;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
+  border:1px solid #1f2937;
+  box-shadow:0 0 30px rgba(0,0,0,0.45);
 }
 
 .active { display:flex; }
 
-h1 { font-size:20px; margin-bottom:20px; }
+.safe { border:1px solid #16a34a; box-shadow:0 0 28px rgba(22,163,74,.25); }
+.warning { border:1px solid #eab308; box-shadow:0 0 28px rgba(234,179,8,.25); }
+.danger { border:1px solid #dc2626; box-shadow:0 0 28px rgba(220,38,38,.25); }
+
+h1 { font-size:21px; margin-bottom:12px; }
+h2 { margin:10px 0; font-size:30px; }
 
 .button {
   width:100%;
   padding:15px;
   margin:10px 0;
-  border-radius:10px;
+  border-radius:12px;
   border:none;
   font-size:16px;
   cursor:pointer;
+  font-weight:bold;
 }
 
-.green { background:#16a34a; }
+.green { background:#16a34a; color:white; }
 .yellow { background:#eab308; color:black; }
-.red { background:#dc2626; }
+.red { background:#dc2626; color:white; }
+.neutral { background:#f3f4f6; color:#111827; }
+
+textarea {
+  width:100%;
+  height:90px;
+  border-radius:12px;
+  border:1px solid #374151;
+  padding:12px;
+  margin-top:20px;
+  font-size:14px;
+  background:#0b1220;
+  color:white;
+  resize:none;
+}
 
 .small {
-  font-size:12px;
-  opacity:0.7;
-  margin-top:10px;
+  font-size:13px;
+  opacity:0.75;
+  margin-top:12px;
+  line-height:1.5;
 }
 </style>
 </head>
 
 <body>
 
-<!-- HOME -->
-<div id="home" class="screen active">
+<div id="home" class="screen active safe">
   <h1>AI Guardian™</h1>
   <h2>🛡️ Protected</h2>
   <p>No risks detected.<br>No action required.</p>
+  <textarea id="userInput" placeholder="Enter text to analyze..."></textarea>
+  <button class="button neutral" onclick="analyze()">Analyze</button>
   <div class="small">Real-time governance active</div>
-  <button class="button" onclick="show('risk')">Simulate Risk</button>
 </div>
 
-<!-- RISK -->
-<div id="risk" class="screen">
+<div id="risk" class="screen warning">
   <h2>⚠️ Potential Risk Detected</h2>
   <p>This input may contain sensitive or harmful content.</p>
-
   <button class="button green" onclick="show('approved')">Allow & Proceed</button>
   <button class="button yellow" onclick="show('modify')">Modify & Resubmit</button>
   <button class="button red" onclick="show('hold')">User Must Approve</button>
-
   <div class="small">You are in control. You decide.</div>
 </div>
 
-<!-- MODIFY -->
-<div id="modify" class="screen">
+<div id="modify" class="screen warning">
   <h2>Modify Input</h2>
-  <textarea style="width:100%;height:100px;"></textarea>
-  <button class="button yellow" onclick="show('risk')">Re-evaluate</button>
+  <textarea id="modifyInput"></textarea>
+  <button class="button yellow" onclick="reEvaluate()">Re-evaluate</button>
 </div>
 
-<!-- APPROVED -->
-<div id="approved" class="screen">
+<div id="approved" class="screen safe">
   <h2>✅ Approved</h2>
   <p>Content allowed to proceed.</p>
-  <div class="small">Nothing was saved. Nothing was shared.</div>
-  <button class="button" onclick="show('home')">Back</button>
+  <div class="small">Nothing was saved.<br>Nothing was shared.</div>
+  <button class="button neutral" onclick="show('home')">Back</button>
 </div>
 
-<!-- HOLD -->
-<div id="hold" class="screen">
+<div id="hold" class="screen danger">
   <h2>⛔ Action Held</h2>
   <p>This content requires your approval.</p>
   <div class="small">No action has been taken.</div>
@@ -105,6 +123,32 @@ h1 { font-size:20px; margin-bottom:20px; }
 function show(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screen).classList.add('active');
+}
+
+function analyze() {
+  const input = document.getElementById("userInput").value.trim();
+
+  if (!input) {
+    alert("Enter something first.");
+    return;
+  }
+
+  const riskWords = ["password", "bank", "ssn", "credit card", "login", "account number"];
+
+  const risky = riskWords.some(word => input.toLowerCase().includes(word));
+
+  if (risky) {
+    document.getElementById("modifyInput").value = input;
+    show("risk");
+  } else {
+    show("approved");
+  }
+}
+
+function reEvaluate() {
+  const input = document.getElementById("modifyInput").value;
+  document.getElementById("userInput").value = input;
+  analyze();
 }
 </script>
 
