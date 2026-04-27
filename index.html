@@ -38,7 +38,7 @@ body {
 .warning { border-color:#eab308; box-shadow:0 0 30px rgba(234,179,8,.22); }
 .danger { border-color:#dc2626; box-shadow:0 0 30px rgba(220,38,38,.22); }
 
-h1 { font-size:22px; margin-bottom:14px; letter-spacing:.3px; }
+h1 { font-size:22px; margin-bottom:14px; }
 h2 { margin:12px 0; font-size:30px; }
 
 p {
@@ -92,13 +92,10 @@ textarea:focus {
 .reason {
   font-size:15px;
   margin:12px 0 18px;
-  opacity:.92;
-  line-height:1.45;
 }
 
 .badge {
   font-size:12px;
-  letter-spacing:.08em;
   color:#38bdf8;
   margin-bottom:8px;
   text-transform:uppercase;
@@ -115,6 +112,7 @@ textarea:focus {
 
 <body>
 
+<!-- HOME -->
 <div id="home" class="screen active safe">
   <div class="badge">Real-Time Governance</div>
   <h1>AI Guardian™</h1>
@@ -129,11 +127,13 @@ textarea:focus {
     Enter a message and select Analyze.<br>
     Normal text → Approved<br>
     Sensitive or risky input → Warning or Approval Required<br><br>
-    This interface demonstrates AI Guardian™ decision flow and behavior.<br>
-    Production systems operate within a secured, non-public architecture.
+
+    This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.<br>
+    Production systems operate within a secured architecture with advanced models, pattern analysis, and safeguards not exposed in this demo interface.
   </div>
 </div>
 
+<!-- RISK -->
 <div id="risk" class="screen warning">
   <div class="badge">Review Required</div>
   <h2>⚠️ Caution</h2>
@@ -147,21 +147,23 @@ textarea:focus {
 
   <div class="small">
     You remain in control. Every action requires your decision.<br><br>
-    This interface demonstrates AI Guardian™ decision flow and behavior.<br>
-    Production systems operate within a secured, non-public architecture.
+    This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.<br>
+    Production systems operate within a secured architecture with advanced models, pattern analysis, and safeguards not exposed in this demo interface.
   </div>
 </div>
 
+<!-- MODIFY -->
 <div id="modify" class="screen warning">
   <div class="badge">User Review</div>
   <h2>Modify Input</h2>
-  <p>Edit the message and run analysis again.</p>
+  <p>Edit and re-check the message.</p>
 
   <textarea id="modifyInput"></textarea>
   <button class="button yellow" onclick="reEvaluate()">Re-evaluate</button>
   <button class="button neutral" onclick="show('home')">Cancel</button>
 </div>
 
+<!-- APPROVED -->
 <div id="approved" class="screen safe">
   <div class="badge">Protected Result</div>
   <h2>✅ Approved</h2>
@@ -171,12 +173,15 @@ textarea:focus {
     Nothing was saved.<br>
     Nothing was shared.<br>
     Nothing was reported.<br><br>
-    You remain in control.
+
+    This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.<br>
+    Production systems operate within a secured architecture with advanced models, pattern analysis, and safeguards not exposed in this demo interface.
   </div>
 
   <button class="button neutral" onclick="show('home')">Back</button>
 </div>
 
+<!-- HOLD -->
 <div id="hold" class="screen danger">
   <div class="badge">Action Held</div>
   <h2>⛔ Hold for Approval</h2>
@@ -185,7 +190,11 @@ textarea:focus {
   <div class="small">
     No action has been taken.<br>
     This content requires review before proceeding.<br><br>
-    You remain in control. Every action requires your decision.
+
+    You remain in control. Every action requires your decision.<br><br>
+
+    This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.<br>
+    Production systems operate within a secured architecture with advanced models, pattern analysis, and safeguards not exposed in this demo interface.
   </div>
 
   <button class="button red" onclick="show('risk')">Review Options</button>
@@ -205,44 +214,34 @@ function analyze(){
 
   const highRisk=[
     "ssn","social security","social security number","medicare","medicare number","medicare card",
-    "medicaid","passport","passport number","driver license","driver's license","license number",
-    "state id","id card","tax id","ein number","bank account","account number","routing number",
-    "credit card","debit card","card number","cvv","security code","pin number","atm pin",
-    "wire transfer","zelle","cash app","venmo","password","passcode","login code",
-    "verification code","2fa","one time code","otp","authentication code","reset your password",
-    "confirm your password","verify your account","confirm your identity","click this link",
-    "your account will be closed","account suspended","gift card","send money","pay immediately",
-    "how to make a bomb","weapon","attack","kill","shoot","terrorist","terrorism",
-    "join extremist","radicalize","how to hack","steal money","bypass security","illegal access"
+    "passport","driver license","id card","bank account","routing number",
+    "credit card","cvv","pin number","password","otp","verification code",
+    "send money","wire transfer","gift card","click this link","verify your account",
+    "how to hack","steal money","weapon","attack","kill"
   ];
 
   const mediumRisk=[
-    "email","phone number","address","home address","full name","date of birth","birthday",
-    "insurance card","insurance number","policy number","member id","group number",
-    "medical record","username","login","personal information","urgent","act now",
-    "final notice","don't trust anyone","they are lying","hidden truth","wake up"
+    "email","phone number","address","full name","date of birth",
+    "insurance","policy number","username","login","personal information",
+    "urgent","act now","final notice"
   ];
 
-  const patterns=[
-    {hit:/\b\d{3}-\d{2}-\d{4}\b/.test(input),reason:"Possible Social Security number detected."},
-    {hit:/\b(?:\d[ -]*?){13,19}\b/.test(input),reason:"Possible payment card or identity number detected."},
-    {hit:/\b\d{4,6}\b/.test(input)&&/(code|pin|otp|verification)/.test(input),reason:"Possible verification code detected."},
-    {hit:/(http:\/\/|https:\/\/|www\.)/.test(input)&&/(verify|login|account|urgent|click)/.test(input),reason:"Suspicious link and account pressure detected."}
-  ];
-
-  const highWord=highRisk.find(w=>input.includes(w));
-  const medWord=mediumRisk.find(w=>input.includes(w));
-  const patternHit=patterns.find(p=>p.hit);
+  const patternSSN = /\b\d{3}-\d{2}-\d{4}\b/;
+  const patternCard = /\b(?:\d[ -]*?){13,19}\b/;
+  const patternCode = /\b\d{4,6}\b/;
+  const hasLink = input.includes("http") || input.includes("www");
 
   document.getElementById("modifyInput").value=raw;
 
-  if(highWord||patternHit){
-    document.getElementById("holdReason").innerText=patternHit?patternHit.reason:"High-risk request detected: "+highWord;
+  if(highRisk.some(w=>input.includes(w)) || patternSSN.test(input) || patternCard.test(input)){
+    document.getElementById("holdReason").innerText="High-risk request detected.";
     show("hold");
-  } else if(medWord||(input.includes("http")||input.includes("www"))){
-    document.getElementById("riskReason").innerText=medWord?"Caution detected: "+medWord:"Link detected. Review before proceeding.";
+  }
+  else if(mediumRisk.some(w=>input.includes(w)) || hasLink || patternCode.test(input)){
+    document.getElementById("riskReason").innerText="Potential sensitive or risky input detected.";
     show("risk");
-  } else {
+  }
+  else {
     show("approved");
   }
 }
