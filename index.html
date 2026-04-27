@@ -9,43 +9,49 @@
 body {
   margin:0;
   font-family: Arial, sans-serif;
-  background:#0b0f1a;
+  background:#060b14;
   color:white;
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
+  min-height:100vh;
 }
 
 .screen {
   width:360px;
-  height:720px;
-  background:#111827;
-  border-radius:22px;
-  padding:22px;
+  min-height:720px;
+  background:linear-gradient(180deg,#111827,#0b1220);
+  border-radius:24px;
+  padding:24px;
   display:none;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
   border:1px solid #1f2937;
-  box-shadow:0 0 30px rgba(0,0,0,0.45);
+  box-shadow:0 0 40px rgba(0,0,0,.55);
 }
 
 .active { display:flex; }
 
-.safe { border-color:#16a34a; box-shadow:0 0 28px rgba(22,163,74,.25); }
-.warning { border-color:#eab308; box-shadow:0 0 28px rgba(234,179,8,.25); }
-.danger { border-color:#dc2626; box-shadow:0 0 28px rgba(220,38,38,.25); }
+.safe { border-color:#16a34a; box-shadow:0 0 30px rgba(22,163,74,.22); }
+.warning { border-color:#eab308; box-shadow:0 0 30px rgba(234,179,8,.22); }
+.danger { border-color:#dc2626; box-shadow:0 0 30px rgba(220,38,38,.22); }
 
-h1 { font-size:21px; margin-bottom:12px; }
-h2 { margin:10px 0; font-size:28px; }
+h1 { font-size:22px; margin-bottom:14px; letter-spacing:.3px; }
+h2 { margin:12px 0; font-size:30px; }
+
+p {
+  font-size:16px;
+  line-height:1.45;
+  margin:8px 0 14px;
+}
 
 .button {
   width:100%;
-  padding:15px;
+  padding:16px;
   margin:10px 0;
-  border-radius:12px;
+  border-radius:14px;
   border:none;
   font-size:16px;
   cursor:pointer;
@@ -59,36 +65,58 @@ h2 { margin:10px 0; font-size:28px; }
 
 textarea {
   width:100%;
-  height:95px;
-  border-radius:12px;
-  border:1px solid #374151;
-  padding:12px;
-  margin-top:20px;
+  height:100px;
+  border-radius:14px;
+  border:1px solid #334155;
+  padding:14px;
+  margin-top:18px;
   font-size:14px;
-  background:#0b1220;
+  background:#07111f;
   color:white;
   resize:none;
+  outline:none;
+}
+
+textarea:focus {
+  border-color:#38bdf8;
+  box-shadow:0 0 0 2px rgba(56,189,248,.18);
 }
 
 .small {
-  font-size:13px;
-  opacity:0.75;
-  margin-top:12px;
+  font-size:12.5px;
+  opacity:.76;
+  margin-top:14px;
   line-height:1.6;
 }
 
 .reason {
-  font-size:14px;
-  margin:12px 0;
-  opacity:0.9;
+  font-size:15px;
+  margin:12px 0 18px;
+  opacity:.92;
+  line-height:1.45;
+}
+
+.badge {
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#38bdf8;
+  margin-bottom:8px;
+  text-transform:uppercase;
+}
+
+.divider {
+  width:100%;
+  height:1px;
+  background:#243244;
+  margin:18px 0;
 }
 </style>
 </head>
 
 <body>
 
-<!-- HOME -->
 <div id="home" class="screen active safe">
+  <div class="badge">Real-Time Governance</div>
   <h1>AI Guardian™</h1>
   <h2>🛡️ Protected</h2>
   <p>No risks detected.<br>No action required.</p>
@@ -101,63 +129,67 @@ textarea {
     Enter a message and select Analyze.<br>
     Normal text → Approved<br>
     Sensitive or risky input → Warning or Approval Required<br><br>
-
     This interface demonstrates AI Guardian™ decision flow and behavior.<br>
     Production systems operate within a secured, non-public architecture.
   </div>
 </div>
 
-<!-- RISK -->
 <div id="risk" class="screen warning">
+  <div class="badge">Review Required</div>
   <h2>⚠️ Caution</h2>
   <p id="riskReason" class="reason">Potential risk detected.</p>
 
   <button class="button green" onclick="show('approved')">Allow & Proceed</button>
   <button class="button yellow" onclick="show('modify')">Modify & Resubmit</button>
-  <button class="button red" onclick="show('hold')">User Must Approve</button>
+  <button class="button red" onclick="show('hold')">Hold for Approval</button>
+
+  <div class="divider"></div>
 
   <div class="small">
+    You remain in control. Every action requires your decision.<br><br>
     This interface demonstrates AI Guardian™ decision flow and behavior.<br>
     Production systems operate within a secured, non-public architecture.
   </div>
 </div>
 
-<!-- MODIFY -->
 <div id="modify" class="screen warning">
+  <div class="badge">User Review</div>
   <h2>Modify Input</h2>
+  <p>Edit the message and run analysis again.</p>
+
   <textarea id="modifyInput"></textarea>
   <button class="button yellow" onclick="reEvaluate()">Re-evaluate</button>
+  <button class="button neutral" onclick="show('home')">Cancel</button>
 </div>
 
-<!-- APPROVED -->
 <div id="approved" class="screen safe">
+  <div class="badge">Protected Result</div>
   <h2>✅ Approved</h2>
   <p>Content allowed to proceed.</p>
 
   <div class="small">
     Nothing was saved.<br>
-    Nothing was shared.<br><br>
-
-    This interface demonstrates AI Guardian™ decision flow and behavior.<br>
-    Production systems operate within a secured, non-public architecture.
+    Nothing was shared.<br>
+    Nothing was reported.<br><br>
+    You remain in control.
   </div>
 
   <button class="button neutral" onclick="show('home')">Back</button>
 </div>
 
-<!-- HOLD -->
 <div id="hold" class="screen danger">
-  <h2>⛔ User Must Approve</h2>
+  <div class="badge">Action Held</div>
+  <h2>⛔ Hold for Approval</h2>
   <p id="holdReason" class="reason">High-risk content detected.</p>
 
   <div class="small">
-    No action has been taken.<br><br>
-
-    This interface demonstrates AI Guardian™ decision flow and behavior.<br>
-    Production systems operate within a secured, non-public architecture.
+    No action has been taken.<br>
+    This content requires review before proceeding.<br><br>
+    You remain in control. Every action requires your decision.
   </div>
 
   <button class="button red" onclick="show('risk')">Review Options</button>
+  <button class="button neutral" onclick="show('home')">Return Home</button>
 </div>
 
 <script>
@@ -185,18 +217,17 @@ function analyze(){
   ];
 
   const mediumRisk=[
-    "email","phone number","address","full name","date of birth","birthday",
-    "insurance card","insurance number","policy number","member id",
-    "medical record","username","login","personal information",
-    "urgent","act now","final notice","don't trust anyone","they are lying",
-    "hidden truth","wake up"
+    "email","phone number","address","home address","full name","date of birth","birthday",
+    "insurance card","insurance number","policy number","member id","group number",
+    "medical record","username","login","personal information","urgent","act now",
+    "final notice","don't trust anyone","they are lying","hidden truth","wake up"
   ];
 
   const patterns=[
     {hit:/\b\d{3}-\d{2}-\d{4}\b/.test(input),reason:"Possible Social Security number detected."},
-    {hit:/\b(?:\d[ -]*?){13,19}\b/.test(input),reason:"Possible card or identity number detected."},
-    {hit:/\b\d{4,6}\b/.test(input)&&/(code|pin|otp|verification)/.test(input),reason:"Verification code detected."},
-    {hit:/(http:\/\/|https:\/\/|www\.)/.test(input)&&/(verify|login|account|urgent|click)/.test(input),reason:"Suspicious link detected."}
+    {hit:/\b(?:\d[ -]*?){13,19}\b/.test(input),reason:"Possible payment card or identity number detected."},
+    {hit:/\b\d{4,6}\b/.test(input)&&/(code|pin|otp|verification)/.test(input),reason:"Possible verification code detected."},
+    {hit:/(http:\/\/|https:\/\/|www\.)/.test(input)&&/(verify|login|account|urgent|click)/.test(input),reason:"Suspicious link and account pressure detected."}
   ];
 
   const highWord=highRisk.find(w=>input.includes(w));
