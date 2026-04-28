@@ -125,7 +125,7 @@ textarea:focus {
     <strong>How to Experience This Demo</strong><br><br>
     Enter a message and select <strong>Analyze</strong>.<br><br>
     <strong>Normal input</strong> → Approved / Green<br>
-    <strong>Sensitive or risky input</strong> → Warning / Yellow or Approval Required / Red<br><br>
+    <strong>Sensitive, risky, or unclear input</strong> → Review / Yellow or Hold / Red<br><br>
     This interface demonstrates AI Guardian™ decision flow using a simplified detection layer.
     It is not the AI Guardian™ production system, which operates within a secured architecture with advanced models, pattern analysis, and safeguards not used in this demo interface.
   </div>
@@ -133,8 +133,8 @@ textarea:focus {
 
 <div id="risk" class="screen warning">
   <div class="badge">Review Required</div>
-  <h2>⚠️ Caution</h2>
-  <p id="riskReason" class="reason">Potential sensitive or risky input detected.</p>
+  <h2>⚠️ Review Suggested</h2>
+  <p id="riskReason" class="reason">Input requires review before proceeding.</p>
 
   <button class="button green" onclick="show('approved')">Allow & Proceed</button>
   <button class="button yellow" onclick="show('modify')">Modify & Resubmit</button>
@@ -187,59 +187,69 @@ textarea:focus {
 </div>
 
 <script>
+const WORKER_URL = "https://curly-fire-566bai-guardian-core.einsteinrrai.workers.dev/";
+
 function show(screen){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(screen).classList.add('active');
 }
 
-function analyze(){
-  const raw=document.getElementById("userInput").value;
-  const input=raw.toLowerCase().trim();
-  if(!input){alert("Enter something first.");return;}
+async function analyze(){
+  const raw = document.getElementById("userInput").value.trim();
 
-  const highRisk=[
-    "ssn","social security","social security number","medicare","medicare number","medicare card",
-    "medicaid","passport","passport number","driver license","driver's license","license number",
-    "state id","id card","tax id","ein number","bank account","account number","routing number",
-    "credit card","debit card","card number","cvv","security code","pin number","atm pin",
-    "wire transfer","zelle","cash app","venmo","password","passcode","login code",
-    "verification code","2fa","one time code","otp","authentication code","reset your password",
-    "confirm your password","verify your account","confirm your identity","click this link",
-    "your account will be closed","account suspended","gift card","send money","pay immediately",
-    "how to hack","steal money","bypass security","illegal access",
-    "weapon","attack","kill","shoot","terrorist","terrorism","join extremist","radicalize"
-  ];
-
-  const mediumRisk=[
-    "email","phone number","address","home address","full name","date of birth","birthday",
-    "insurance card","insurance number","policy number","member id","group number",
-    "medical record","username","login","personal information","urgent","act now",
-    "final notice","limited time","don't trust anyone","they are lying","hidden truth","wake up"
-  ];
-
-  const patternSSN = /\b\d{3}-\d{2}-\d{4}\b/;
-  const patternCard = /\b(?:\d[ -]*?){13,19}\b/;
-  const patternCode = /\b\d{4,6}\b/;
-  const hasLink = input.includes("http") || input.includes("www");
-
-  document.getElementById("modifyInput").value=raw;
-
-  if(highRisk.some(w=>input.includes(w)) || patternSSN.test(input) || patternCard.test(input)){
-    document.getElementById("holdReason").innerText="High-risk request detected.";
-    show("hold");
+  if(!raw){
+    alert("Enter something first.");
+    return;
   }
-  else if(mediumRisk.some(w=>input.includes(w)) || hasLink || patternCode.test(input)){
-    document.getElementById("riskReason").innerText="Potential sensitive or risky input detected.";
+
+  document.querySelector(".button.neutral").innerText = "Analyzing...";
+
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ input: raw })
+    });
+
+    const result = await response.json();
+
+    document.getElementById("modifyInput").value = raw;
+
+    /*
+      SAFE RULE:
+      Only clear, safe responses are approved.
+      Unknown, unclear, caution, system errors, or anything suspicious goes to review.
+    */
+
+    if (result.risk === "high" || result.action === "hold") {
+      document.getElementById("holdReason").innerText =
+        result.reason || "High-risk request detected.";
+      show("hold");
+    }
+    else if (result.risk === "safe" && result.action === "allow") {
+      show("approved");
+    }
+    else {
+      document.getElementById("riskReason").innerText =
+        result.reason || "Input is unclear or requires review before proceeding.";
+      show("risk");
+    }
+
+  } catch (error) {
+    document.getElementById("modifyInput").value = raw;
+    document.getElementById("riskReason").innerText =
+      "System review unavailable. Review suggested before proceeding.";
     show("risk");
   }
-  else {
-    show("approved");
-  }
+
+  document.querySelector(".button.neutral").innerText = "Analyze";
 }
 
 function reEvaluate(){
-  const input=document.getElementById("modifyInput").value;
-  document.getElementById("userInput").value=input;
+  const input = document.getElementById("modifyInput").value;
+  document.getElementById("userInput").value = input;
   analyze();
 }
 </script>
