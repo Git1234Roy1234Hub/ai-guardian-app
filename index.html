@@ -95,7 +95,6 @@ textarea {
 
 <body>
 
-<!-- HOME -->
 <div id="home" class="screen active safe">
   <div class="badge">Real-Time Governance</div>
   <h1>AI Guardian™</h1>
@@ -104,7 +103,7 @@ textarea {
   <p>No risks detected.<br>No action required.</p>
 
   <textarea id="userInput" placeholder="Enter text to analyze..."></textarea>
-  <button class="button neutral" onclick="analyze()">Analyze</button>
+  <button id="analyzeButton" class="button neutral" onclick="analyze()">Analyze</button>
 
   <div class="small">
     <strong>How to Experience This Demo</strong><br><br>
@@ -118,7 +117,6 @@ textarea {
   </div>
 </div>
 
-<!-- REVIEW -->
 <div id="review" class="screen warning">
   <div class="badge">Review Required</div>
   <h2>⚠️ Review Suggested</h2>
@@ -133,7 +131,6 @@ textarea {
   </div>
 </div>
 
-<!-- MODIFY -->
 <div id="modify" class="screen warning">
   <h2>Modify Input</h2>
   <textarea id="modifyInput"></textarea>
@@ -142,7 +139,6 @@ textarea {
   <button class="button neutral" onclick="show('home')">Cancel</button>
 </div>
 
-<!-- APPROVED -->
 <div id="approved" class="screen safe">
   <div class="badge">Protected Result</div>
   <h2>✅ Approved</h2>
@@ -157,7 +153,6 @@ textarea {
   <button class="button neutral" onclick="show('home')">Back</button>
 </div>
 
-<!-- HOLD -->
 <div id="hold" class="screen danger">
   <div class="badge">Action Held</div>
   <h2>⛔ Hold for Approval</h2>
@@ -183,22 +178,26 @@ function show(screen){
 
 async function analyze(){
   const input = document.getElementById("userInput").value.trim();
+  const button = document.getElementById("analyzeButton");
 
   if(!input){
     alert("Enter something first.");
     return;
   }
 
-  document.querySelector(".neutral").innerText = "Analyzing...";
+  button.innerText = "Analyzing...";
+  button.disabled = true;
 
   try {
-    const res = await fetch(WORKER_URL, {
+    const response = await fetch(WORKER_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ input })
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ input: input })
     });
 
-    const data = await res.json();
+    const data = await response.json();
 
     document.getElementById("modifyInput").value = input;
 
@@ -212,17 +211,18 @@ async function analyze(){
     }
     else {
       document.getElementById("reviewReason").innerText =
-        data.reason || "Input requires additional verification.";
+        data.reason || "Input requires additional verification before proceeding.";
       show("review");
     }
 
-  } catch (e) {
+  } catch (error) {
     document.getElementById("reviewReason").innerText =
-      "System unavailable. Manual review recommended.";
+      "System connection unavailable. Manual review recommended.";
     show("review");
   }
 
-  document.querySelector(".neutral").innerText = "Analyze";
+  button.innerText = "Analyze";
+  button.disabled = false;
 }
 
 function reEvaluate(){
